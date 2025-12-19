@@ -39,22 +39,14 @@ const upload = multer({
     limits: { fileSize: 15 * 1024 * 1024 } // 15MB limit for breathing room
 });
 
-// --- 2. NODEMAILER CONFIGURATION ---
-const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // Must be false for port 587
-    auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASS
-    },
-    tls: {
-        rejectUnauthorized: false // This helps bypass cloud security blocks
-    }
-});
+// --- 2. RESEND CONFIGURATION ---
+const { Resend } = require('resend');
+
+// Initialize Resend with your API Key
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // --- 3. SUBMISSION ROUTE ---
-app.post('/submit-volunteer', upload.single('passport'), (req, res) => {
+app.post('/submit-volunteer', upload.single('passport'), async (req, res) => {
     const data = req.body;
     const file = req.file;
 
@@ -65,12 +57,13 @@ app.post('/submit-volunteer', upload.single('passport'), (req, res) => {
     const protocol = req.protocol;
     const host = req.get('host');
     const approveLink = `${protocol}://${host}/approve?email=${encodeURIComponent(data.email)}&token=${SECRET_TOKEN}`;
-    const mailOptions = {
-        // FIXED: Use the env variable here to match the auth user
-        from: `"O.E.F Administration" <${process.env.GMAIL_USER}>`, 
-        to: 'blackondoboy@gmail.com',
-        subject: `📜 New Volunteer Credentials: ${data.fullName}`,
-        html: `
+
+    try {
+        await resend.emails.send({
+            from: 'O.E.F Foundation <onboarding@resend.dev>', // Keep this during testing
+            to: 'blackondoboy@gmail.com',
+            subject: `📜 New Volunteer Credentials: ${data.fullName}`,
+            html: `
             <div style="background-color: #1B120F; padding: 40px; font-family: 'Montserrat', Helvetica, Arial, sans-serif; text-align: center; color: #F5F5DC;">
                 <div style="max-width: 600px; margin: 0 auto; border: 1px solid #D4AF37; padding: 50px; background-color: #2D1B15; box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);">
                     
@@ -114,31 +107,27 @@ app.post('/submit-volunteer', upload.single('passport'), (req, res) => {
             </div>
         `,
 
-        attachments: [{ path: file.path }]
-    };
+            attachments: [
+                {
+                    filename: file.originalname,
+                    content: fs.readFileSync(file.path), // Read the file for Resend
+                },
+            ],
+        });
 
-    console.log("Attempting to send email via:", process.env.GMAIL_USER);
-
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.error('Email error details:', error); // This gives more info in Render logs
-            return res.status(500).json({ status: 'error', message: 'Email failed to send.' });
-        }
-        // ... rest of your code ...
+        // Clean up temp file
+        fs.unlinkSync(file.path);
         console.log('Application sent for:', data.fullName);
-
-        // Clean up: Delete the file from the /uploads folder after sending the email
-fs.unlink(file.path, (err) => {
-    if (err) console.error("Error deleting file:", err);
-    else console.log(`Successfully deleted temp file: ${file.path}`);
-});
-
         res.status(200).json({ status: 'success', message: 'Application received' });
-    });
+
+    } catch (error) {
+        console.error('Resend Submission Error:', error);
+        res.status(500).json({ status: 'error', message: 'Email failed to send.' });
+    }
 });
 
 // --- 4. SECURE APPROVAL ROUTE ---
-app.get('/approve', (req, res) => {
+app.get('/approve', async (req, res) => {
     const { email, token } = req.query;
 
     if (token !== SECRET_TOKEN) {
@@ -146,14 +135,14 @@ app.get('/approve', (req, res) => {
     }
 
     const volunteerID = `OEF-${Math.floor(1000 + Math.random() * 9000)}`;
-    const logoURL = 'https://github.com/Yisraelfx/The-O.-E.-Foundation/blob/38cf27ea787134c8df2bc1f813286910f1520922/assets/logo.jpg';
 
-    // EMAIL 1: The Approval Notification
-    const mail1 = {
-        from: `"O.E.F Administration" <${process.env.GMAIL_USER}>`,
-        to: email,
-        subject: "Congratulations! Your Application has been Approved",
-        html: `
+    try {
+        // Send Approval Notification
+        await resend.emails.send({
+            from: 'O.E.F Administration <onboarding@resend.dev>',
+            to: email,
+            subject: "Congratulations! Your Application has been Approved",
+            html: `
             <div style="font-family: 'Montserrat', sans-serif; color: #1B120F;">
             <img src="${logoURL}" alt="O.E.F Logo" style="width: 80px; margin-bottom: 20px;">
                 <h2 style="color: #D4AF37;">Welcome to theOnakpa Emmanuel Foundation</h2>
@@ -167,14 +156,14 @@ app.get('/approve', (req, res) => {
                 <small>Onakpa Emmanuel Foundation • ...we split the seas, so you can walk right through it</small>
             </div>
         `
-    };
+    });
 
-    // EMAIL 2: The ID Card with Download Button
-    const mail2 = {
-        from: `"O.E.F Archive" <${process.env.GMAIL_USER}>`,
-        to: email,
-        subject: "OFFICIAL DIGITAL ID: Onakpa Emmanuel Foundation",
-        html: `
+        // Send ID Card Email
+        await resend.emails.send({
+            from: 'O.E.F Archive <onboarding@resend.dev>',
+            to: email,
+            subject: "OFFICIAL DIGITAL ID: Onakpa Emmanuel Foundation",
+             html: `
             <div style="font-family: Arial, sans-serif; text-align: center; padding: 20px;">
             <img src="${logoURL}" alt="O.E.F Logo" style="width: 80px; margin-bottom: 20px;">
                 <div id="id-card" style="width: 350px; margin: auto; background: #1B120F; border: 2px solid #D4AF37; padding: 20px; color: #F5F5DC; border-radius: 10px;">
@@ -193,8 +182,18 @@ app.get('/approve', (req, res) => {
                 </a>
             </div>
         `
-    };
+        });
 
+        res.send(`<h1 style="color:gold; text-align:center;">Approval & ID Sent to ${email}</h1>`);
+
+    } catch (error) {
+        console.error('Resend Approval Error:', error);
+        res.status(500).send("Error sending approval emails.");
+    }
+});
+
+// --- 5. PRINTABLE ID ROUTE ---
+const logoURL = 'https://onakpaemmanuelfoundation.org/assets/logo.png';
     // Chain the emails
     transporter.sendMail(mail1, () => {
         transporter.sendMail(mail2, (err) => {
@@ -202,7 +201,6 @@ app.get('/approve', (req, res) => {
             res.send(`<h1 style="color:gold; text-align:center;">Approval & ID Sent to ${email}</h1>`);
         });
     });
-});
 
 app.get('/download-id', (req, res) => {
     const { email, id } = req.query;
