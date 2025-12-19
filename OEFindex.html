@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Onakpa Emmanuel Foundation - NGO</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <style>
+        /* --- CSS Variables for Theming --- */
+        :root {
+            /* DARK THEME (Default) 
+               Background: Dark Gray (User Request)
+               Text: Soft Beige (For readability against dark gray)
+               Accent: Gold
+            */
+            --bg-color: #1a1a1a;       /* Dark Gray */
+            --text-color: #EFE6DA;     /* Soft Beige (Text) */
+            --card-bg: #262626;        /* Slightly lighter gray for cards */
+            --header-bg: #1a1a1a;      
+            --border-color: #C8A038;   /* Gold */
+            --accent-color: #C8A038;   /* Gold */
+            
+            /* Three.js Scene Color (Hex for JS) */
+            --scene-color-hex: 0x1a1a1a; 
+            
+            --secondary-text: #9ca3af; /* Gray for subtitles in dark mode */
+        }
+
+        .light-theme {
+            /* LIGHT THEME (Soft Beige Variation)
+               Background: Soft Beige (#EFE6DA)
+               Text: Dark Brown (#2C1A0F)
+               Accent: Gold
+            */
+            --bg-color: #EFE6DA;       /* Soft Beige (Background) */
+            --text-color: #2C1A0F;     /* Dark Brown */
+            --card-bg: #E8DCCB;        /* Slightly darker beige for contrast */
+            --header-bg: #EFE6DA;
+            --border-color: #C8A038;
+            --accent-color: #C8A038;
+            
+            --scene-color-hex: 0xEFE6DA;
+            --secondary-text: #5D4037; /* Lighter brown for subtitles */
+        }
+
+        /* Base styles using CSS variables */
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-color); 
+            color: var(--text-color); 
+            scroll-behavior: smooth;
+            transition: background-color 0.5s, color 0.5s;
+        }
+
+        /* The canvas is fixed and covers the entire viewport */
+        #hero-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10; 
+            pointer-events: none; 
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 20; 
+            min-height: 100vh; 
+        }
+
+        /* --- Tailwind Overrides using Variables --- */
+        header {
+            background-color: var(--header-bg) !important;
+            border-bottom: 1px solid rgba(200, 160, 56, 0.3) !important;
+        }
+
+        /* Sections background overrides */
+        #mission, #presence, footer {
+            background-color: var(--header-bg) !important;
+            border-top-color: var(--border-color) !important;
+            border-bottom-color: var(--border-color) !important;
+        }
+
+        /* Card background overrides */
+        .bg-gray-800, .bg-gray-800\/50, .bg-gray-900 {
+            background-color: var(--card-bg) !important;
+            border: 1px solid rgba(200, 160, 56, 0.2); 
+        }
+        
+        /* TEXT COLOR OVERRIDES */
+        .text-gray-100, .text-gray-200, .text-gray-300, .text-white {
+             color: var(--text-color) !important;
+        }
+        
+        .text-gray-400 {
+            color: var(--secondary-text) !important;
+        }
+
+        /* ACCENT COLOR OVERRIDES (Blue/Indigo -> GOLD) */
+        .text-blue-400, .text-indigo-400, .text-purple-400, .text-green-400 {
+            color: var(--accent-color) !important;
+        }
+        
+        .hover\:text-blue-400:hover {
+            color: #b08d32 !important; 
+        }
+
+        /* BUTTON OVERRIDES */
+        .bg-blue-600, .bg-green-500 {
+            background-color: var(--accent-color) !important;
+            color: #ffffff !important; 
+        }
+        .bg-blue-600:hover, .bg-green-500:hover {
+            background-color: #b08d32 !important; 
+        }
+        
+        .border-blue-500, .border-gray-600 {
+            border-color: var(--accent-color) !important;
+            color: var(--text-color) !important;
+        }
+
+        /* --- Standard Component Styles --- */
+
+        .section-title {
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -8px;
+            width: 50%;
+            height: 4px;
+            /* Gold Gradient */
+            background: linear-gradient(90deg, #C8A038, #F0D585);
+            border-radius: 9999px;
+        }
+
+        /* Gradient Text for Main Title */
+        .bg-gradient-to-r {
+            background-image: linear-gradient(to right, #C8A038, #F0D585) !important;
+            -webkit-background-clip: text !important;
+            background-clip: text !important;
+            color: transparent !important;
+        }
+
+        /* Styling for interactive buttons */
+        .interactive-button {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(200, 160, 56, 0.3);
+        }
+
+        .interactive-button:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(200, 160, 56, 0.5);
+        }
+
+        .impact-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .impact-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(200, 160, 56, 0.25);
+        }
+
+        /* Utility class for scroll-reveal effect */
+        .scroll-hidden {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .scroll-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Partner Logo Hover Effect */
+        .partner-logo {
+            filter: grayscale(100%) sepia(80%) hue-rotate(10deg); 
+            opacity: 0.6;
+            transition: filter 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
+            cursor: pointer;
+        }
+        .partner-logo:hover {
+            filter: grayscale(0%);
+            opacity: 1;
+            transform: scale(1.05);
+        }
+        
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 5px;
+        }
+
+        /* Custom Mouse Dot */
+#custom-cursor {
+    position: fixed;
+    width: 12px;
+    height: 12px;
+    background: var(--accent-color);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    box-shadow: 0 0 10px rgba(200, 160, 56, 0.6);
+    transition: width 0.18s ease, height 0.18s ease, background 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease, border 0.18s ease;
+}
+
+/* small dot state used by default */
+#custom-cursor.dot {
+    background: var(--accent-color);
+    width: 12px;
+    height: 12px;
+}
+
+/* ring state used when hovering interactive elements (gold glowing ring) */
+#custom-cursor.ring {
+    background: transparent;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 2px solid rgba(200,160,56,0.95);
+    box-shadow: 0 0 18px rgba(200,160,56,0.95), 0 0 36px rgba(200,160,56,0.18);
+    transform: translateZ(0);
+}
+
+/* legacy active class kept for compatibility (small growth) */
+#custom-cursor.active {
+    width: 22px;
+    height: 22px;
+    box-shadow: 0 0 16px rgba(200, 160, 56, 0.8);
+}
+
+/* Hide default cursor */
+* {
+    cursor: none !important;
+}
+
+/* This version uses hard-coded colors to ensure it shows up immediately */
+.glowing-line {
+    width: 100%;
+    height: 1px;
+    background-color: #D4AF37; /* Solid Gold */
+    margin: 60px 0;
+    border: none;
+    display: block;
+    animation: pulse-glow 4s infinite ease-in-out;
+    /* This creates the 'Bloom' effect */
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.8), 
+                0 0 20px rgba(212, 175, 55, 0.4);
+    position: relative;
+    z-index: 10;
+}
+
+@keyframes pulse-glow {
+    0%, 100% { opacity: 0.4; transform: scaleX(0.95); }
+    50% { opacity: 1; transform: scaleX(1); }
+}
+
+    </style>
+</head>
+
+<body class="dark-theme"> <canvas id="hero-canvas"></canvas>
+
+    <div id="custom-cursor"></div>
+
+    <header class="sticky top-0 z-50 backdrop-blur-md shadow-sm">
+        <nav class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#hero" class="text-2xl font-bold text-blue-400 hover:text-indigo-400 transition">OEF</a>
+            
+            <div class="flex items-center space-x-4">
+                <div class="hidden md:flex space-x-8 text-lg font-medium text-gray-300">
+                    <a href="#mission" class="hover:text-blue-400 transition">Mission</a>
+                    <a href="impactbyoef.html" class="hover:text-blue-400 transition">Our Impact</a>
+                    <a href="globalpartner.html" class="hover:text-blue-400 transition">Global Partners</a>
+                    <a href="donations.html" class="hover:text-blue-400 transition">Donate</a>
+                    <a href="bav.html" class="hover:text-blue-400 transition">Become A Volunteer</a>
+                </div>
+
+                <button id="theme-toggle" class="p-2 rounded-full transition border border-yellow-600/20" aria-label="Toggle theme">
+                    <svg id="moon-icon" class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                    </svg>
+                    <svg id="sun-icon" class="w-6 h-6 text-yellow-600 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                </button>
+
+                <button class="md:hidden text-gray-300 hover:text-blue-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="relative z-30">
+        <section id="hero" class="min-h-screen flex items-center justify-center p-8 overflow-hidden">
+            <div class="hero-content text-center max-w-4xl mx-auto space-y-6">
+                <h1 class="text-6xl md:text-8xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-600 animate-pulse">
+                    Onakpa Emmanuel Foundation
+                </h1>
+                <p class="text-xl md:text-3xl text-gray-300 font-light">
+                    We split the seas, so you can walk right through it.
+                </p>
+            </div>
+        </section>
+
+           
+
+           <section id="aboutus" class="py-20 px-8 md:px-16 scroll-hidden">
+            <div class="max-w-4xl mx-auto text-center">
+                <h2 class="section-title text-4xl font-bold mb-12 text-blue-400 mx-auto">About Onakpa Emmanuel Foundation</h2>
+                <p class="text-xl text-gray-400 mb-10">Here's a deeper look at the heart of Onakpa Emmanuel Foundation (OEF). We're not just giving handouts, we're creating a lasting change.</p>
+                <div class="pt-8">
+                    <a href="#mission" class="interactive-button inline-block px-12 py-4 text-lg font-semibold bg-blue-600 rounded-full shadow-lg">
+                        Explore Our Mission
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="mission" class="py-20 px-8 md:px-16 bg-gray-900 border-t border-b border-gray-800 scroll-hidden">
+            <div class="max-w-6xl mx-auto">
+                <h2 class="section-title text-4xl font-bold mb-12 text-blue-400">Our Mission</h2>
+                <div class="grid md:grid-row-3 gap-12">
+                    <div class="p-6 bg-gray-800 rounded-xl shadow-2xl transition hover:shadow-indigo-500/20 impact-card">
+                        <p class="text-gray-400">To deliver long-term, impact-driven investments in education, skill development, entrepreneurship, health and community infrastructure.<br> We empower individuals and families to build wealth, resilience and leadership that lasts for generations. From charity to legacy!</p>
+                    </div>    
+                    <div class="grid md:grid-cols-3 gap-12">
+                    <div class="p-6 bg-gray-800 rounded-xl shadow-2xl transition hover:shadow-blue-500/20 impact-card">
+                        <svg class="w-10 h-10 text-indigo-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        <h3 class="text-2xl font-semibold mb-3 text-gray-200">Sustainable Aid</h3>
+                        <p class="text-gray-400">We provide tools and education, not just handouts, ensuring long-term self-sufficiency for vulnerable communities.</p>
+                    </div>
+                    <div class="p-6 bg-gray-800 rounded-xl shadow-2xl transition hover:shadow-indigo-500/20 impact-card">
+                        <svg class="w-10 h-10 text-indigo-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5s3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18s-3.332.477-4.5 1.253"></path></svg>
+                        <h3 class="text-2xl font-semibold mb-3 text-gray-200">Global Education</h3>
+                        <p class="text-gray-400">Our programs focus on building schools and providing digital learning resources in underserved regions nationwide.</p>
+                    </div>
+                    <div class="p-6 bg-gray-800 rounded-xl shadow-2xl transition hover:shadow-purple-500/20 impact-card">
+                        <svg class="w-10 h-10 text-indigo-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a8 8 0 01-8-8 8 8 0 01-8-8m8-8v.01m0 0l-1-1m1 1l1-1"></path></svg>
+                        <h3 class="text-2xl font-semibold mb-3 text-gray-200">Community Empowerment</h3>
+                        <p class="text-gray-400">We believe in local leadership, empowering residents to drive change and manage local projects effectively.</p>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </section>
+
+ <section id="omov" class="py-20 px-8 md:px-16 scroll-hidden">
+            <div class="max-w-6xl mx-auto text-center">
+                <div class="grid md:grid-row-3 gap-12">
+                <div class="p-6 bg-gray-800 rounded-xl shadow-2xl transition hover:shadow-indigo-500/20 impact-card">
+                        <svg class="w-10 h-10 text-indigo-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07M2 10h3l4-4v12l-4-4H2V10z"></path>
+</svg>
+                        <h3 class="text-2xl font-semibold mb-3 text-gray-200">Our Motto</h3>
+                        <p class="text-gray-400">We split the sea; so you can walk right through it.<br> We clear impossible barriers; poverty, lack of opportunity, inequality; so communities can step into freedom, independence and abundance. No more drowning in challenges. We part the waters</p>
+                    </div>
+
+                    <div class="p-6 bg-gray-800 rounded-xl shadow-2xl transition hover:shadow-purple-500/20 impact-card">
+                        <svg class="w-10 h-10 text-indigo-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+  <circle cx="12" cy="12" r="3" stroke-width="2"></circle>
+</svg>
+                        <h3 class="text-2xl font-semibold mb-3 text-gray-200">Our Vision</h3>
+                        <p class="text-gray-400">A world where every community in Nigeria and beyond thrives with unbreakable independence, self-sustaining prosperity and equal access to opportunities; no one left dependent on temporary aid.<br> We envision generations rising strong, innovative and empowered.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+ 
+
+         <section id="presence" class="py-20 px-8 md:px-16 bg-gray-900 border-t border-b border-gray-800 scroll-hidden">
+            <div class="max-w-6xl mx-auto">
+                <h2 class="section-title text-4xl font-bold mb-12 text-blue-400">Global Presence & Partners</h2>
+                <p class="text-xl text-gray-400 mb-12">We work with trusted local organizations and global bodies to maximize our reach and effectiveness all over Nigeria.</p>
+
+                <div class="text-center mt-16">
+                    <a href="globalpartner.html" class="interactive-button inline-block px-8 py-3 text-lg font-semibold border-2 border-gray-600 text-gray-300 hover:bg-gray-800 rounded-full shadow-lg">
+                        View All Partners
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="impact" class="py-20 px-8 md:px-16 scroll-hidden">
+            <div class="max-w-6xl mx-auto text-center">
+                <h2 class="section-title text-4xl font-bold mb-16 text-blue-400 mx-auto">Our Impact: The Numbers</h2>
+                <div class="grid md:grid-cols-4 gap-10">
+                    <div class="p-6 bg-gray-800/50 rounded-xl shadow-xl border border-blue-600/30 impact-card">
+                        <p class="text-6xl font-extrabold text-blue-400 mb-2">
+                            <span class="counter" data-target="200">0</span>+
+                        </p>
+                        <h3 class="text-lg font-semibold text-gray-200">Lives Directly Helped</h3>
+                        <p class="text-sm text-gray-400">Through our emergency relief and long-term programs.</p>
+                    </div>
+                    <div class="p-6 bg-gray-800/50 rounded-xl shadow-xl border border-indigo-600/30 impact-card">
+                        <p class="text-6xl font-extrabold text-indigo-400 mb-2">
+                            <span class="counter" data-target="1">0</span>
+                        </p>
+                        <h3 class="text-lg font-semibold text-gray-200">New Schools</h3>
+                        <p class="text-sm text-gray-400">Providing safe and modern educational environments.</p>
+                    </div>
+                    <div class="p-6 bg-gray-800/50 rounded-xl shadow-xl border border-green-600/30 impact-card">
+                        <p class="text-6xl font-extrabold text-green-400 mb-2">
+                            <span class="counter" data-target="0">0</span>
+                        </p>
+                        <h3 class="text-lg font-semibold text-gray-200">Water Systems</h3>
+                        <p class="text-sm text-gray-400">Bringing safe drinking water to remote villages.</p>
+                    </div>
+                    <div class="p-6 bg-gray-800/50 rounded-xl shadow-xl border border-purple-600/30 impact-card">
+                        <p class="text-6xl font-extrabold text-purple-400 mb-2">
+                            <span class="counter" data-target="50">0</span>+
+                        </p>
+                        <h3 class="text-lg font-semibold text-gray-200">Volunteers</h3>
+                        <p class="text-sm text-gray-400">Our dedicated team on the ground worldwide.</p>
+                    </div>
+                    <div class="pt-8 md:col-span-4 text-center">
+                        <button class="interactive-button px-10 py-4 text-xl font-bold bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg" onclick="window.location.href='impactbyoef.html'">
+                            Our Impact
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="glowing-line" style="width: 70%; margin: 40px auto;"></div>
+
+
+        <section id="donate" class="py-20 px-8 md:px-16 scroll-hidden">
+            <div class="max-w-4xl mx-auto text-center">
+                <h2 class="section-title text-4xl font-bold mb-12 text-blue-400 mx-auto">Make an Impact Today</h2>
+                <p class="text-xl text-gray-400 mb-10">Your contribution powers our global network. Every dollar helps connect a child to education, a family to clean water, and a community to a future of hope.</p>
+                <div class="flex flex-col md:flex-row justify-center space-y-6 md:space-y-0 md:space-x-8">
+                    <button class="interactive-button px-10 py-4 text-xl font-bold bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg" onclick="window.location.href='donations.html'">
+                        Donate Now
+                    </button>
+                    <button class="interactive-button px-10 py-4 text-xl font-bold border-2 border-blue-500 text-blue-400 hover:bg-blue-900 rounded-full shadow-lg" onclick="window.location.href='bav.html'">
+                        Become a Volunteer
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <footer class="bg-gray-900 border-t border-gray-800 py-10 px-8 md:px-16">
+            <div class="max-w-6xl mx-auto grid md:grid-cols-4.5 gap-8 text-gray-400">
+                <div>
+                    <h4 class="text-xl font-bold text-white mb-4">Onakpa Emmanuel Foundation</h4>
+                    <p class="text-sm">We split the seas, so you can walk right through it.</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold text-white mb-4">Quick Links</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#mission" class="hover:text-blue-400">Our Mission</a></li>
+                        <li><a href="impactbyoef.html" class="hover:text-blue-400">Impact Data</a></li>
+                        <li><a href="#presence" class="hover:text-blue-400">Global Reach</a></li>
+                        <li><a href="donations.html" class="hover:text-blue-400">Support Us</a></li>
+                        <li><a href="#bav" class="hover:text-blue-400 transition">Become A Volunteer Today!</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold text-white mb-4">Get In Touch</h4>
+                    <p class="text-sm">Email: onakpaemmanuelfoundation@gmail.com</p>
+                    <p class="text-sm">Phone: +234-(906)-698-9341</p>
+                </div>
+                <div class="md:col-span-1">
+    <h4 class="text-lg font-semibold text-white mb-4">Follow Us</h4>
+    <div class="flex space-x-4">
+        <a href="https://instagram.com/YOUR_USERNAME" target="_blank" 
+           class="group flex items-center justify-center w-10 h-10 rounded-full bg-gray-800/50 border border-gray-700 hover:border-pink-500 transition-all duration-300" 
+           aria-label="Instagram">
+            <i data-lucide="instagram" class="w-5 h-5 text-gray-400 group-hover:text-pink-500"></i>
+        </a>
+
+        <a href="https://x.com/YOUR_USERNAME" target="_blank" 
+           class="group flex items-center justify-center w-10 h-10 rounded-full bg-gray-800/50 border border-gray-700 hover:border-white transition-all duration-300" 
+           aria-label="X (Twitter)">
+            <i data-lucide="twitter" class="w-5 h-5 text-gray-400 group-hover:text-white"></i>
+        </a>
+    </div>
+</div>
+            </div>
+            <div class="text-center pt-8 border-t border-gray-800 mt-8">
+                <p class="text-sm text-gray-600">&copy; 2025 Onakpa Emmanuel Foundation. All Rights Reserved.</p>
+            </div>
+        </footer>
+
+        <div id="message-box" class="fixed bottom-5 right-5 p-4 bg-yellow-700 text-white rounded-lg shadow-2xl transition-opacity duration-300 opacity-0 pointer-events-none">
+            Message Placeholder
+        </div>
+
+    </main>
+
+    <script>
+        // Global variables for Three.js and Theme State
+        let scene, camera, renderer, globe;
+        let mouseX = 0, mouseY = 0;
+        let targetRotationX = 0, targetRotationY = 0;
+        const windowHalfX = window.innerWidth / 2;
+        const windowHalfY = window.innerHeight / 2;
+        const rotationDamping = 0.05;
+        
+        let theme = 'dark'; // Initial theme state
+
+        // --- Theme Management ---
+        
+        function getSceneColor() {
+            const rootStyle = getComputedStyle(document.documentElement);
+            const hexString = rootStyle.getPropertyValue('--scene-color-hex').trim();
+            return parseInt(hexString, 16);
+        }
+
+        function updateThreeSceneTheme() {
+            if (scene) {
+                const newColor = getSceneColor();
+                scene.background = new THREE.Color(newColor);
+            }
+        }
+
+        function updateThemeButton() {
+            const moon = document.getElementById('moon-icon');
+            const sun = document.getElementById('sun-icon');
+            const button = document.getElementById('theme-toggle');
+            
+            button.classList.remove('text-gray-800', 'hover:bg-gray-200', 'text-gray-300', 'hover:bg-gray-700', 'text-yellow-600', 'hover:bg-yellow-50');
+
+            if (theme === 'dark') {
+                moon.classList.remove('hidden');
+                sun.classList.add('hidden');
+                button.classList.add('text-gray-300', 'hover:bg-gray-700');
+            } else {
+                moon.classList.add('hidden');
+                sun.classList.remove('hidden');
+                button.classList.add('text-yellow-600', 'hover:bg-yellow-50');
+            }
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const html = document.documentElement; 
+
+            if (theme === 'dark') {
+                theme = 'light';
+                html.classList.add('light-theme');
+                body.classList.remove('dark-theme');
+                body.classList.add('light-theme');
+            } else {
+                theme = 'dark';
+                html.classList.remove('light-theme');
+                body.classList.remove('light-theme');
+                body.classList.add('dark-theme');
+            }
+            updateThreeSceneTheme();
+            updateThemeButton();
+        }
+
+        // --- Three.js Initialization ---
+        function initThreeJS() {
+            const container = document.getElementById('hero-canvas');
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(getSceneColor()); 
+
+            camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+            camera.position.z = 5; 
+
+            renderer = new THREE.WebGLRenderer({ canvas: container, antialias: true, alpha: true });
+            renderer.setSize(width, height);
+            renderer.setPixelRatio(window.devicePixelRatio);
+
+            const geometry = new THREE.SphereGeometry(2, 64, 64); 
+
+            const textureLoader = new THREE.TextureLoader();
+            const earthTextureUrl = 'https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg';
+            const texture = textureLoader.load(earthTextureUrl);
+
+            const material = new THREE.MeshPhongMaterial({
+                map: texture,
+                shininess: 5,
+            });
+
+            globe = new THREE.Mesh(geometry, material);
+            scene.add(globe);
+            
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); 
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2); 
+            directionalLight.position.set(5, 3, 5).normalize();
+            scene.add(directionalLight);
+            
+            // Back Light - Gold Accent
+            const backLight = new THREE.DirectionalLight(0xC8A038, 1.5);
+            backLight.position.set(-5, -5, -5).normalize();
+            scene.add(backLight);
+
+            document.addEventListener('mousemove', onDocumentMouseMove, false);
+            document.addEventListener('touchstart', onDocumentTouchStart, false);
+            document.addEventListener('touchmove', onDocumentTouchMove, false);
+            window.addEventListener('resize', onWindowResize, false);
+        }
+
+        function onWindowResize() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+        }
+
+        function onDocumentMouseMove(event) {
+            mouseX = (event.clientX - windowHalfX) * 0.005;
+            mouseY = (event.clientY - windowHalfY) * 0.005;
+        }
+
+        function onDocumentTouchStart(event) {
+            if (event.touches.length === 1) {
+                event.preventDefault();
+                mouseX = (event.touches[0].pageX - windowHalfX) * 0.005;
+                mouseY = (event.touches[0].pageY - windowHalfY) * 0.005;
+            }
+        }
+
+        function onDocumentTouchMove(event) {
+            if (event.touches.length === 1) {
+                event.preventDefault();
+                mouseX = (event.touches[0].pageX - windowHalfX) * 0.005;
+                mouseY = (event.touches[0].pageY - windowHalfY) * 0.005;
+            }
+        }
+        
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const scrollY = window.scrollY; 
+            const heroHeight = document.getElementById('hero').offsetHeight;
+            let progress = Math.min(scrollY / heroHeight, 1);
+            
+            const targetRotX = -0.174; 
+            const targetRotY = 0.139; 
+            const continuousSpin = 0.001;
+            const alignmentFactor = progress * 0.05;
+
+            const startZ = 5;
+            const endZ = 2.5; 
+            
+            camera.position.z = startZ + (endZ - startZ) * progress; 
+            camera.updateProjectionMatrix();
+
+            targetRotationY += (mouseX - targetRotationY) * rotationDamping;
+            targetRotationX += (mouseY - targetRotationX) * rotationDamping;
+            
+            globe.rotation.y += continuousSpin * (1 - progress); 
+
+            globe.rotation.x += targetRotationX * rotationDamping;
+            globe.rotation.y += targetRotationY * rotationDamping;
+
+            globe.rotation.x = globe.rotation.x + (targetRotX - globe.rotation.x) * alignmentFactor; 
+            globe.rotation.y = globe.rotation.y + (targetRotY - globe.rotation.y) * alignmentFactor; 
+            
+            const heroContent = document.querySelector('.hero-content');
+            heroContent.style.opacity = Math.max(0, 1 - (progress * 3)); 
+
+            renderer.render(scene, camera);
+        }
+
+        // --- UI Interactivity ---
+
+        const messageBox = document.getElementById('message-box');
+        let messageTimeout;
+
+        function showMessage(text) {
+            clearTimeout(messageTimeout);
+            messageBox.textContent = text;
+            messageBox.style.opacity = '1';
+            messageBox.style.pointerEvents = 'auto';
+
+            messageTimeout = setTimeout(() => {
+                messageBox.style.opacity = '0';
+                messageBox.style.pointerEvents = 'none';
+            }, 3000);
+        }
+
+        let countersAnimated = false; 
+
+        function animateCounters() {
+            if (countersAnimated) return;
+
+            const counterElements = document.querySelectorAll('.counter');
+            if (counterElements.length === 0) return;
+
+            counterElements.forEach(el => {
+                const target = parseInt(el.getAttribute('data-target'));
+                const duration = 2000;
+                let startTime = null;
+
+                const step = (timestamp) => {
+                    if (!startTime) startTime = timestamp;
+                    const progress = timestamp - startTime;
+                    const increment = Math.min(progress / duration, 1);
+                    const value = Math.floor(increment * target);
+                    
+                    el.textContent = value.toLocaleString();
+
+                    if (increment < 1) {
+                        requestAnimationFrame(step);
+                    } else {
+                        el.textContent = target.toLocaleString();
+                    }
+                };
+
+                requestAnimationFrame(step);
+            });
+            countersAnimated = true;
+        }
+
+        function checkScroll() {
+            const sections = document.querySelectorAll('.scroll-hidden');
+            const scrollThreshold = window.innerHeight * 0.8; 
+
+            sections.forEach(section => {
+                const rect = section.getBoundingClientRect();
+                if (rect.top <= scrollThreshold) {
+                    section.classList.remove('scroll-hidden');
+                    section.classList.add('scroll-visible');
+                    
+                    if (section.id === 'impact' && !countersAnimated) {
+                        animateCounters();
+                    }
+                }
+            });
+        }
+
+        window.onload = function () {
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener('click', toggleTheme);
+                updateThemeButton(); 
+            }
+            initThreeJS();
+            animate(); 
+            window.addEventListener('scroll', checkScroll);
+            checkScroll(); 
+
+            lucide.createIcons();
+        }
+
+        // Custom Mouse Dot
+        const customCursor = document.getElementById('custom-cursor');
+        // start as dot
+        customCursor.classList.add('dot');
+
+        let cursorX = 0, cursorY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            cursorX = e.clientX;
+            cursorY = e.clientY;
+            // center the cursor element on the pointer
+            customCursor.style.left = (cursorX - (customCursor.offsetWidth / 2)) + 'px';
+            customCursor.style.top = (cursorY - (customCursor.offsetHeight / 2)) + 'px';
+        });
+
+        // When hovering interactive elements show a gold glowing ring
+        document.addEventListener('mouseover', (e) => {
+            const target = e.target;
+            const isInteractive = target.tagName === 'A' || target.tagName === 'BUTTON' || target.classList.contains('interactive-button');
+            if (isInteractive) {
+                customCursor.classList.remove('dot', 'active');
+                customCursor.classList.add('ring');
+            }
+        });
+
+        document.addEventListener('mouseout', (e) => {
+            const target = e.target;
+            const leftInteractive = target.tagName === 'A' || target.tagName === 'BUTTON' || target.classList.contains('interactive-button');
+            if (leftInteractive) {
+                customCursor.classList.remove('ring', 'active');
+                customCursor.classList.add('dot');
+            }
+        });
+
+        // Optional: keep simple click feedback using active class
+        document.addEventListener('mousedown', () => {
+            customCursor.classList.add('active');
+        });
+        document.addEventListener('mouseup', () => {
+            customCursor.classList.remove('active');
+        });
+    </script>
+</body>
+</html>

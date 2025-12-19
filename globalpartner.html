@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Presence | Onakpa Emmanuel Foundation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300;500&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #F5F5DC; --text: #3E2723; --accent: #B8860B; --card-bg: #EFEBE9;
+            --gold-glow: rgba(184, 134, 11, 0.4);
+        }
+        [data-theme="dark"] {
+            --bg: #1B120F; --text: #F5F5DC; --accent: #D4AF37; --card-bg: #2D1B15;
+            --gold-glow: rgba(212, 175, 55, 0.6);
+        }
+
+        body {
+            margin: 0; background-color: var(--bg); color: var(--text);
+            font-family: 'Montserrat', sans-serif; transition: 0.8s;
+            display: flex; align-items: center; justify-content: center; min-height: 100vh;
+            cursor: none; overflow-x: hidden;
+        }
+
+        #custom-cursor {
+            position: fixed; top: 0; left: 0; width: 8px; height: 8px;
+            background-color: var(--accent); border-radius: 50%;
+            pointer-events: none; z-index: 9999;
+            box-shadow: 0 0 15px var(--gold-glow);
+            transform: translate(-50%, -50%); 
+            transition: transform 0.12s ease;
+        }
+        #custom-cursor.ring { width: 30px; height: 30px; background: transparent; border: 1px solid var(--accent); }
+
+        /* Navigation */
+        .nav-btn {
+            position: fixed; top: 30px; background: none; border: 1px solid var(--accent);
+            color: var(--accent); padding: 8px 20px; font-size: 0.6rem; letter-spacing: 2px;
+            text-transform: uppercase; text-decoration: none; z-index: 1000;
+        }
+        .home-btn { left: 30px; }
+        .theme-switch { right: 30px; cursor: none; }
+
+        /* Main Content */
+        .container {
+            text-align: center; width: 80%; max-width: 900px; padding: 40px;
+        }
+
+        .hero-title {
+            font-weight: 100; font-size: 3rem; letter-spacing: 15px; 
+            text-transform: uppercase; margin-bottom: 10px;
+        }
+
+        .glowing-line {
+            width: 150px; height: 1px; margin: 30px auto;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            box-shadow: 0 0 10px var(--gold-glow);
+        }
+
+        .description {
+            font-weight: 300; line-height: 1.8; letter-spacing: 2px;
+            max-width: 650px; margin: 0 auto 50px; opacity: 0.9;
+        }
+
+        /* The "Ad" / Call to Action Box */
+        .partnership-card {
+            background: var(--card-bg);
+            border: 1px solid var(--accent);
+            padding: 60px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+        }
+
+        .partnership-card::before {
+    /* Change your text here */
+    content: "ONAKPA EMMANUEL FOUNDATION"; 
+    
+    /* Centralizing Logic */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
+    /* Styling */
+    font-size: 1.5rem; 
+    font-weight: 500;
+    color: var(--accent);
+    white-space: nowrap;
+    z-index: 0;
+    pointer-events: none;
+    
+    /* Animation */
+    animation: pulseGlow 6s ease-in-out infinite;
+}
+
+/* The Pulse Animation */
+@keyframes pulseGlow {
+    0% {
+        opacity: 0.02;
+        letter-spacing: 5px;
+    }
+    50% {
+        opacity: 0.08; /* Becomes slightly more visible */
+        letter-spacing: 15px; /* Expands slightly */
+    }
+    100% {
+        opacity: 0.02;
+        letter-spacing: 5px;
+    }
+}
+
+        .partnership-card::after {
+    /* Your smaller text here */
+    content: "... we split the seas, so you can walk right through it.";
+    
+    /* Centralizing Logic */
+    position: absolute;
+    top: 62%; /* Pushes it slightly below the 50% center mark */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
+    /* Styling */
+    font-size: 0.5rem; /* Very small */
+    font-weight: 300;
+    letter-spacing: 8px; /* High end spacing */
+    color: var(--accent);
+    white-space: nowrap;
+    z-index: 0;
+    pointer-events: none;
+    
+    /* Matching Animation */
+    animation: pulseGlowSmall 6s ease-in-out infinite;
+}
+
+/* Matching pulse for the small text */
+@keyframes pulseGlowSmall {
+    0% { opacity: 0.05; }
+    50% { opacity: 0.15; }
+    100% { opacity: 0.05; }
+}
+
+        h3 { 
+            font-weight: 300; letter-spacing: 5px; text-transform: uppercase; 
+            margin-bottom: 25px; color: var(--accent);
+        }
+
+        .partner-btn {
+            display: inline-block; padding: 20px 45px; background: var(--text);
+            color: var(--bg); text-decoration: none; text-transform: uppercase;
+            letter-spacing: 5px; font-weight: 500; font-size: 0.8rem;
+            transition: 0.4s; border: none; margin-top: 20px;
+        }
+
+        .partner-btn:hover {
+            background: var(--accent); color: #fff; transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .footer-note {
+            margin-top: 60px; font-size: 0.6rem; letter-spacing: 4px; opacity: 0.5; text-transform: uppercase;
+        }
+    </style>
+</head>
+<body data-theme="dark">
+
+    <div id="custom-cursor"></div>
+    
+    <a href="OEFindex.html" class="nav-btn home-btn">Home</a>
+    <button class="nav-btn theme-switch" onclick="toggleTheme()">Appearance</button>
+
+    <div class="container">
+        <h1 class="hero-title">Global Presence</h1>
+        <div class="glowing-line"></div>
+        
+        <p class="description">
+            The Onakpa Emmanuel Foundation is committed to transcending borders. 
+            Our mission to empower communities and provide sustainable support requires 
+            a unified global effort.
+        </p>
+
+        <div class="partnership-card">
+            <h3>Seeking Global Partners</h3>
+            <p class="description" style="font-size: 0.9rem; margin-bottom: 30px;">
+                Are you an individual, organization, or corporate entity looking to create 
+                a lasting impact? We are currently expanding our network of international 
+                collaborators for our 2026 initiatives.
+            </p>
+            <a href="mailto:onakpaemmanuelfoundation@gmail.com?subject=Partnership Inquiry" class="partner-btn">
+                Partner With Us Today
+            </a>
+        </div>
+
+        <div class="footer-note">We Split The Seas, So You Can Walk Right Through It — Onakpa Emmanuel Foundation 2025</div>
+    </div>
+
+    <script>
+        const cursor = document.getElementById('custom-cursor');
+
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+        // Hover effect for interactive elements
+        const selectables = 'a, button, .partner-btn';
+        document.querySelectorAll(selectables).forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('ring'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('ring'));
+        });
+
+        function toggleTheme() {
+            const current = document.body.getAttribute('data-theme');
+            document.body.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+        }
+    </script>
+</body>
+</html>

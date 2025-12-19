@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Impact | 2024-2033 Digital Archive</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300;500&display=swap" rel="stylesheet">
+    
+    <style>
+        /* THEME VARIABLES */
+        :root {
+            --bg: #F5F5DC;          /* Soft Beige */
+            --text: #3E2723;        /* Dark Brown */
+            --accent: #B8860B;      /* Dark Goldenrod */
+            --card-line: rgba(62, 39, 35, 0.1);
+            --gold-glow: rgba(184, 134, 11, 0.3);
+            --cursor-color: #B8860B;
+        }
+
+        [data-theme="dark"] {
+            --bg: #1B120F;          /* Deep Dark Brown */
+            --text: #F5F5DC;        /* Soft Beige */
+            --accent: #D4AF37;      /* Gold */
+            --card-line: rgba(212, 175, 55, 0.2);
+            --gold-glow: rgba(212, 175, 55, 0.5);
+            --cursor-color: #D4AF37;
+        }
+
+        body {
+            margin: 0; background-color: var(--bg); color: var(--text);
+            font-family: 'Montserrat', sans-serif; transition: background 0.8s ease, color 0.8s ease;
+            cursor: none; overflow-x: hidden;
+        }
+
+        /* PROGRESS BAR */
+        #progress-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 3px;
+            background: rgba(0,0,0,0.05); z-index: 10001;
+        }
+        #progress-bar {
+            height: 100%; width: 0%; background: var(--accent);
+            transition: width 0.1s ease-out; box-shadow: 0 0 10px var(--gold-glow);
+        }
+
+        /* CUSTOM CURSOR - small dot + gold ring states */
+        #custom-cursor {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            background: var(--cursor-color);
+            box-shadow: 0 0 10px var(--gold-glow);
+            transform: translate(-50%,-50%); /* center on gsap x/y */
+            transition: width 0.18s ease, height 0.18s ease, border 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+        }
+
+        /* default small dot */
+        #custom-cursor.dot {
+            width: 10px;
+            height: 10px;
+            background: var(--cursor-color);
+            border: none;
+        }
+
+        /* ring used when hovering interactive elements (gold glowing ring) */
+        #custom-cursor.ring {
+            width: 34px;
+            height: 34px;
+            background: transparent;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 18px var(--gold-glow), 0 0 36px rgba(212,175,55,0.12);
+        }
+
+        /* small click feedback */
+        #custom-cursor.active {
+            transform: translate(-50%,-50%) scale(0.96);
+            box-shadow: 0 0 24px var(--gold-glow);
+        }
+
+        header { padding: 80px 60px 40px 60px; display: flex; justify-content: space-between; align-items: center; }
+        h1 { font-weight: 100; letter-spacing: 12px; text-transform: uppercase; font-size: 0.7rem; margin: 0; }
+
+        /* LIST STYLING */
+        .vertical-list { display: flex; flex-direction: column; width: 100%; border-top: 1px solid var(--card-line); }
+        
+        .list-item {
+            position: relative; padding: 60px 60px; border-bottom: 1px solid var(--card-line);
+            display: flex; justify-content: space-between; align-items: center;
+            text-transform: uppercase; letter-spacing: 12px; font-size: 2.2rem; font-weight: 100;
+            transition: all 0.5s ease;
+        }
+        .list-item:hover { padding-left: 100px; color: var(--accent); border-bottom: 1px solid var(--accent); }
+
+        /* HOVER PREVIEWS */
+        .hover-preview {
+            position: absolute; right: 10%; top: 50%; transform: translateY(-50%) scale(0.8);
+            width: 240px; height: 320px; opacity: 0; pointer-events: none;
+            transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 0 50px var(--gold-glow); object-fit: cover; z-index: 5;
+        }
+        .list-item:hover .hover-preview { opacity: 1; transform: translateY(-50%) scale(1); }
+
+        /* CONTENT DISPLAY */
+        .milestone-display { max-width: 850px; margin: 40px auto; text-align: center; padding: 0 40px 100px 40px; }
+        .milestone-display h2 { font-weight: 300; letter-spacing: 10px; text-transform: uppercase; font-size: 1.8rem; }
+        .milestone-display p { font-weight: 100; line-height: 2.2; letter-spacing: 1.5px; margin-top: 40px; font-size: 1rem; }
+        
+        .milestone-media img, .milestone-media video {
+            max-width: 100%; margin-top: 60px; border: 1px solid var(--accent);
+            box-shadow: 0 0 40px var(--gold-glow); opacity: 0; transform: scale(0.96);
+        }
+
+        /* NO EVENT FLASH */
+        .no-event {
+            font-weight: 100; letter-spacing: 10px; color: var(--accent);
+            animation: blink 3s infinite; margin-top: 200px; text-transform: uppercase; font-size: 0.7rem;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.05; } }
+
+        /* BUTTONS */
+        .btn {
+            background: none; border: 1px solid var(--accent); color: var(--accent);
+            padding: 14px 28px; cursor: none; text-transform: uppercase; 
+            letter-spacing: 5px; font-family: 'Montserrat'; font-size: 0.55rem; transition: 0.4s;
+        }
+        .btn:hover { background: var(--accent); color: var(--bg); }
+
+        /* GOLDEN SCROLLBAR */
+        /* WebKit browsers (Chrome, Edge, Safari) */
+        ::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.04);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #D4AF37 0%, #B8860B 100%);
+            border-radius: 10px;
+            border: 3px solid transparent;
+            background-clip: padding-box;
+            box-shadow: 0 0 10px rgba(212,175,55,0.28);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            box-shadow: 0 0 18px rgba(212,175,55,0.45);
+        }
+
+        /* Firefox */
+        html {
+            scrollbar-width: thin;
+            scrollbar-color: #D4AF37 rgba(0,0,0,0.05);
+        }
+        /* Optional: keep layout stable when scrollbar appears */
+        body { scrollbar-gutter: stable both-edges; }
+ 
+        .hidden { display: none !important; }
+        .reveal { opacity: 0; transform: translateY(35px); }
+    </style>
+</head>
+<body data-theme="dark">
+
+    <div id="progress-container"><div id="progress-bar"></div></div>
+    <div id="custom-cursor"></div>
+
+    <header>
+        <h1 class="reveal">The Impact of OEF &mdash; Digital Archive</h1>
+        <div style="display: flex; gap: 20px; align-items: center;">
+            <button class="btn reveal" onclick="window.location.href='OEFindex.html'">Home</button>
+            <button class="btn reveal" onclick="toggleTheme()">Appearance</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <section id="year-view">
+            <div class="vertical-list" id="year-list-container"></div>
+        </section>
+
+        <section id="month-view" class="hidden">
+            <div style="padding: 60px;"><button class="btn reveal" onclick="showView('year-view')">Back to Years</button></div>
+            <div class="vertical-list" id="month-list-container"></div>
+        </section>
+
+        <section id="calendar-view" class="hidden">
+            <div style="padding: 60px;"><button class="btn reveal" onclick="showView('month-view')">Back to Months</button></div>
+            <h2 id="current-label" style="text-align:center; font-weight:100; letter-spacing:25px; text-transform: uppercase; margin-bottom: 50px;"></h2>
+            <div id="days-grid" style="display:grid; grid-template-columns: repeat(7, 1fr); gap:20px; max-width: 800px; margin: 0 auto 100px auto; padding: 0 60px;"></div>
+        </section>
+
+        <section id="milestone-view" class="hidden">
+            <div style="padding: 60px;"><button class="btn reveal" onclick="showView('calendar-view')">Back</button></div>
+            <div class="milestone-display reveal" id="content-area"></div>
+        </section>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.19/bundled/lenis.min.js"></script>
+
+    <script>
+        /* ============================================================
+           DATA SOURCE: Update your archive here
+           ============================================================ */
+        const ARCHIVE_DATA = {
+            "2024-January-1": {
+                title: "Inauguration",
+                writeup: "The first entry in a decade-long project. A silent reflection on the passage of time and the beauty of digital preservation.",
+                image: "https://picsum.photos/1200/800?random=50",
+                video: ""
+            }
+        };
+
+        const years = [2024, 2025, 2026, 2027, 2028, 2029, 2030, 2031, 2032, 2033];
+        const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        
+        let selectedYear = "";
+        let selectedMonth = "";
+
+        // Smooth Scroll (Lenis)
+        const lenis = new Lenis();
+        function raf(time) {
+            lenis.raf(time);
+            // Update Progress Bar
+            const scrollPercent = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+            document.getElementById('progress-bar').style.width = scrollPercent + "%";
+            requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+
+        // Custom Cursor: gsap moves cursor; add ring behavior on interactive hover
+        const cursor = document.getElementById('custom-cursor');
+        // start as small dot
+        cursor.classList.add('dot');
+
+        document.addEventListener('mousemove', (e) => {
+            // gsap positions cursor's center using translate(-50%,-50%) in CSS
+            gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0.18, ease: "power2.out" });
+        });
+
+        // show gold ring when hovering .btn or any <button> or <a>
+        document.addEventListener('pointerover', (e) => {
+            const el = e.target;
+            if (el.closest && (el.closest('.btn') || el.closest('button') || el.closest('a'))) {
+                cursor.classList.remove('dot');
+                cursor.classList.add('ring');
+            }
+        });
+
+        document.addEventListener('pointerout', (e) => {
+            const el = e.target;
+            // when leaving interactive element, revert to dot
+            if (el.closest && (el.closest('.btn') || el.closest('button') || el.closest('a'))) {
+                cursor.classList.remove('ring', 'active');
+                cursor.classList.add('dot');
+            }
+        });
+
+        // optional click feedback
+        document.addEventListener('pointerdown', () => cursor.classList.add('active'));
+        document.addEventListener('pointerup', () => cursor.classList.remove('active'));
+
+        // Initialize Lists
+        const yearContainer = document.getElementById('year-list-container');
+        years.forEach(y => {
+            const div = document.createElement('div');
+            div.className = 'list-item reveal';
+            div.innerHTML = `<span>${y}</span> <img src="https://picsum.photos/400/600?grayscale&random=${y}" class="hover-preview">`;
+            div.onclick = () => { selectedYear = y; showView('month-view'); };
+            yearContainer.appendChild(div);
+        });
+
+        const monthContainer = document.getElementById('month-list-container');
+        months.forEach(m => {
+            const div = document.createElement('div');
+            div.className = 'list-item reveal';
+            div.innerHTML = `<span>${m}</span> <img src="https://picsum.photos/400/600?random=${m}" class="hover-preview">`;
+            div.onclick = () => { selectedMonth = m; openCalendar(); };
+            monthContainer.appendChild(div);
+        });
+
+        function openCalendar() {
+            document.getElementById('current-label').innerText = `${selectedMonth} ${selectedYear}`;
+            const grid = document.getElementById('days-grid');
+            grid.innerHTML = '';
+            for(let i=1; i<=31; i++) {
+                const b = document.createElement('button');
+                b.className = 'btn reveal';
+                b.innerText = i;
+                b.onclick = () => displayMilestone(i);
+                grid.appendChild(b);
+            }
+            showView('calendar-view');
+        }
+
+        function displayMilestone(day) {
+            const key = `${selectedYear}-${selectedMonth}-${day}`;
+            const data = ARCHIVE_DATA[key];
+            const contentArea = document.getElementById('content-area');
+            
+            if (data) {
+                contentArea.innerHTML = `
+                    <h2 class="reveal-content">${data.title}</h2>
+                    <p class="reveal-content">${data.writeup}</p>
+                    <div class="milestone-media">
+                        ${data.image ? `<img id="m-img" src="${data.image}">` : ''}
+                        ${data.video ? `<video id="m-vid" controls src="${data.video}"></video>` : ''}
+                    </div>
+                `;
+                setTimeout(() => {
+                    gsap.to("#m-img, #m-vid", { opacity: 1, scale: 1, duration: 1.8, ease: "expo.out" });
+                }, 150);
+            } else {
+                contentArea.innerHTML = `<div class="no-event">No entries found for this day</div>`;
+            }
+            showView('milestone-view');
+        }
+
+        function showView(viewId) {
+            gsap.to(".reveal", { opacity: 0, y: 20, duration: 0.4 });
+            setTimeout(() => {
+                document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+                document.getElementById(viewId).classList.remove('hidden');
+                lenis.scrollTo(0, { immediate: true });
+                animateIn();
+            }, 450);
+        }
+
+        function animateIn() {
+            gsap.to(".reveal", { opacity: 1, y: 0, duration: 1.4, stagger: 0.06, ease: "expo.out" });
+        }
+
+        function toggleTheme() {
+            document.body.setAttribute('data-theme', document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+        }
+
+        window.onload = animateIn;
+    </script>
+</body>
+</html>

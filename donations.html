@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support the Chronicle</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300;500&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #F5F5DC; --text: #3E2723; --accent: #B8860B; --card-bg: #EFEBE9;
+            --gold-glow: rgba(184, 134, 11, 0.5);
+        }
+
+        [data-theme="dark"] {
+            --bg: #1B120F; --text: #F5F5DC; --accent: #D4AF37; --card-bg: #2D1B15;
+            --gold-glow: rgba(212, 175, 55, 0.7);
+        }
+
+        body {
+            margin: 0; background-color: var(--bg); color: var(--text);
+            font-family: 'Montserrat', sans-serif; display: flex;
+            align-items: center; justify-content: center; min-height: 100vh;
+            transition: background 0.8s ease, color 0.8s ease;
+            cursor: none;
+        }
+
+        /* GLOWING CURSOR */
+        #custom-cursor {
+            position: fixed; top: 0; left: 0; width: 8px; height: 8px;
+            background-color: var(--accent); border-radius: 50%;
+            pointer-events: none; z-index: 9999;
+            box-shadow: 0 0 10px var(--gold-glow), 0 0 20px var(--gold-glow);
+            transition: transform 0.15s ease-out; transform: translate(-50%, -50%);
+        }
+
+        .cursor-hover {
+            transform: translate(-50%, -50%) scale(4);
+            background-color: transparent !important;
+            border: 1px solid var(--accent);
+        }
+
+        .theme-switch {
+            position: absolute; top: 40px; right: 40px;
+            background: none; border: 1px solid var(--accent); color: var(--accent);
+            padding: 10px 20px; font-family: 'Montserrat'; font-size: 0.6rem;
+            text-transform: uppercase; letter-spacing: 3px; cursor: none;
+        }
+
+        .donation-card {
+            background-color: var(--card-bg);
+            text-align: center; max-width: 500px; width: 90%; padding: 50px;
+            border: 1px solid var(--accent); position: relative;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+            transition: background 0.8s ease;
+        }
+
+        h2 { font-weight: 100; letter-spacing: 12px; text-transform: uppercase; margin-bottom: 20px; }
+        .divider { height: 1px; width: 40px; background: var(--accent); margin: 0 auto 30px auto; }
+        
+        p { font-weight: 300; opacity: 0.8; line-height: 1.8; font-size: 0.8rem; margin-bottom: 30px; }
+
+        .amount-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 25px; }
+
+        .amount-btn {
+            background: none; border: 1px solid var(--accent); color: var(--text);
+            padding: 12px 0; font-family: 'Montserrat'; font-weight: 300;
+            cursor: none; transition: 0.4s; font-size: 0.8rem;
+        }
+
+        .amount-btn:hover, .amount-btn.active {
+            background: var(--accent); color: var(--bg); box-shadow: 0 0 15px var(--gold-glow);
+        }
+
+        .custom-input {
+            width: 100%; background: none; border: none; border-bottom: 1px solid var(--accent);
+            color: var(--text); padding: 10px 0; text-align: center; font-size: 1.2rem;
+            font-family: 'Montserrat'; margin-bottom: 30px; outline: none; font-weight: 100;
+        }
+
+        .submit-donation {
+            width: 100%; padding: 20px; background: var(--text); color: var(--bg);
+            border: none; text-transform: uppercase; letter-spacing: 6px;
+            font-weight: 500; cursor: none; transition: 0.5s; margin-bottom: 40px;
+        }
+
+        .submit-donation:hover { background: var(--accent); letter-spacing: 10px; }
+
+        /* BANK WIRE SECTION */
+        .wire-transfer-info {
+            border-top: 1px solid var(--accent);
+            padding-top: 30px;
+            margin-top: 20px;
+            opacity: 0.9;
+        }
+
+        .wire-title {
+            font-size: 0.65rem; letter-spacing: 3px; text-transform: uppercase;
+            margin-bottom: 15px; color: var(--accent); display: block;
+        }
+
+        .bank-details {
+            font-size: 0.75rem; letter-spacing: 1px; line-height: 2.2;
+            font-weight: 300; color: var(--text);
+        }
+
+        .bank-details strong { font-weight: 500; color: var(--accent); }
+
+        .copy-btn {
+            background: none; border: 1px solid var(--accent); color: var(--accent);
+            padding: 2px 8px; font-size: 0.5rem; margin-left: 10px;
+            text-transform: uppercase; letter-spacing: 1px; vertical-align: middle;
+            transition: 0.3s; cursor: none;
+        }
+
+        .copy-btn:hover { background: var(--accent); color: var(--bg); }
+
+        .back-link {
+            display: block; margin-top: 30px; font-size: 0.55rem; letter-spacing: 4px;
+            text-decoration: none; color: var(--accent); text-transform: uppercase;
+        }
+
+        /* GOLDEN SCROLLBAR */
+        /* WebKit browsers (Chrome, Edge, Safari) */
+        ::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.04);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #D4AF37 0%, #B8860B 100%);
+            border-radius: 10px;
+            border: 3px solid transparent;
+            background-clip: padding-box;
+            box-shadow: 0 0 10px rgba(212,175,55,0.18);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            box-shadow: 0 0 18px rgba(212,175,55,0.35);
+        }
+
+        /* Firefox */
+        html {
+            scrollbar-width: thin;
+            scrollbar-color: #D4AF37 rgba(0,0,0,0.04);
+        }
+        /* keep layout stable when scrollbar appears */
+        body { scrollbar-gutter: stable both-edges; }
+    </style>
+</head>
+<body data-theme="dark">
+
+    <div id="custom-cursor"></div>
+
+    <button class="theme-switch" onclick="toggleTheme()">Appearance</button>
+
+    <div class="donation-card">
+        <h2>Support</h2>
+        <div class="divider"></div>
+        <p>Your contributions help preserve the digital archive and maintain these milestones for the decade to come.</p>
+        
+        <div class="amount-grid">
+            <button class="amount-btn" onclick="setAmount(25)">$25</button>
+            <button class="amount-btn" onclick="setAmount(75)">$75</button>
+            <button class="amount-btn" onclick="setAmount(150)">$150</button>
+        </div>
+
+        <input type="number" id="custom-amount" class="custom-input" placeholder="0.00">
+
+            <button class="submit-donation" onclick="window.open('https://wa.me/2347065157595?text=Hi%2C%20my%20name%20is%20_____.%20your%20NGO%20caught%20my%20attention%20and%20I\'d%20like%20to%20make%20donations%20towards%20your%20cause.%20How%20do%20I%20proceed%3F', '_blank')">
+                 Donate
+            </button>
+
+        <div class="wire-transfer-info">
+            <span class="wire-title">Offline Contributions</span>
+            <div class="bank-details">
+                If you cannot donate online, you may contribute via bank wire:<br>
+                <strong>Account:</strong> 0123456789 
+                <button class="copy-btn" onclick="copyAccount('0123456789', this)">Copy</button><br>
+                <strong>Bank:</strong> Stanbic IBTC<br>
+                <strong>Name:</strong> Onakpa Emmanuel Foundation
+            </div>
+        </div>
+
+        <a href="C:\Users\ISRAEL OSAHENYE\Desktop\HTMLL\OEFindex.html" class="back-link">&larr; Return to Home</a>
+    </div>
+
+    <script>
+        // CURSOR
+        const cursor = document.getElementById('custom-cursor');
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+        const setupHover = () => {
+            const hoverables = document.querySelectorAll('button, a, input');
+            hoverables.forEach(el => {
+                el.addEventListener('mouseenter', () => cursor.classList.add('cursor-hover'));
+                el.addEventListener('mouseleave', () => cursor.classList.remove('cursor-hover'));
+            });
+        };
+        setupHover();
+
+        // UI LOGIC
+        function toggleTheme() {
+            const body = document.body;
+            body.setAttribute('data-theme', body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+        }
+
+        function setAmount(val) {
+            document.getElementById('custom-amount').value = val;
+            const btns = document.querySelectorAll('.amount-btn');
+            btns.forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function copyAccount(num, btn) {
+            navigator.clipboard.writeText(num).then(() => {
+                const originalText = btn.innerText;
+                btn.innerText = "Copied!";
+                setTimeout(() => { btn.innerText = originalText; }, 2000);
+            });
+        }
+
+        function processDonation() {
+            const amount = document.getElementById('custom-amount').value;
+            if(!amount || amount <= 0) {
+                alert("Please specify a contribution amount.");
+                return;
+            }
+            alert("Redirecting to secure gateway for $" + amount);
+        }
+    </script>
+</body>
+</html>

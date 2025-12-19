@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volunteer | Onakpa Emmanuel Foundation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300;500&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #F5F5DC; --text: #3E2723; --accent: #B8860B; --card-bg: #EFEBE9;
+            --gold-glow: rgba(184, 134, 11, 0.4);
+        }
+        [data-theme="dark"] {
+            --bg: #1B120F; --text: #F5F5DC; --accent: #D4AF37; --card-bg: #2D1B15;
+            --gold-glow: rgba(212, 175, 55, 0.6);
+        }
+
+        body {
+            margin: 0; background-color: var(--bg); color: var(--text);
+            font-family: 'Montserrat', sans-serif; transition: 0.8s;
+            display: flex; align-items: center; justify-content: center; min-height: 100vh;
+            cursor: none; padding: 100px 0;
+        }
+
+        /* --- CURSOR STYLES --- */
+        #custom-cursor {
+            position: fixed; top: 0; left: 0; width: 8px; height: 8px;
+            background-color: var(--accent); border-radius: 50%;
+            pointer-events: none; z-index: 9999;
+            box-shadow: 0 0 15px var(--gold-glow);
+            transform: translate(-50%, -50%); 
+            transition: transform 0.12s ease, width 0.12s ease, height 0.12s ease;
+        }
+
+        #custom-cursor.ring {
+            width: 25px; height: 25px;
+            background: transparent; border: 1px solid var(--accent);
+        }
+
+        /* --- NAVIGATION STYLES --- */
+        .home-btn {
+            position: fixed; top: 30px; left: 30px; background: none; 
+            border: 1px solid var(--accent); color: var(--accent);
+            padding: 8px 20px; font-size: 0.6rem; letter-spacing: 2px; 
+            text-transform: uppercase; text-decoration: none; transition: 0.3s; z-index: 1000;
+        }
+        .home-btn:hover { background: var(--accent); color: var(--bg); }
+
+        .theme-switch {
+            position: fixed; top: 30px; right: 30px; background: none; 
+            border: 1px solid var(--accent); color: var(--accent);
+            padding: 8px 15px; font-size: 0.6rem; letter-spacing: 2px; cursor: none; z-index: 1000;
+        }
+
+        /* --- FORM STYLES --- */
+        .form-container, .success-container {
+            background: var(--card-bg); border: 1px solid var(--accent);
+            padding: 60px; width: 90%; max-width: 700px; text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1); transition: 0.5s;
+        }
+
+        h2 { font-weight: 100; letter-spacing: 8px; text-transform: uppercase; margin-bottom: 20px; }
+        .glowing-line {
+            width: 40%; height: 1px; margin: 20px auto 40px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            box-shadow: 0 0 10px var(--gold-glow);
+        }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left; }
+        .full-width { grid-column: span 2; }
+        .form-group { margin-bottom: 25px; }
+        label { font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; display: block; margin-bottom: 8px; opacity: 0.8; }
+        
+        input, select, textarea {
+            width: 100%; background: none; border: none; border-bottom: 1px solid var(--accent);
+            color: var(--text); font-family: 'Montserrat'; padding: 10px 0; outline: none; font-size: 0.85rem;
+        }
+
+        .file-upload {
+            border: 1px dashed var(--accent); padding: 30px; text-align: center;
+            margin-top: 10px; font-size: 0.7rem; cursor: none;
+        }
+
+        .submit-btn {
+            width: 100%; padding: 22px; background: var(--text); color: var(--bg);
+            border: none; text-transform: uppercase; letter-spacing: 5px; margin-top: 30px;
+            transition: 0.4s; cursor: none; font-weight: 500;
+        }
+        .submit-btn:hover { background: var(--accent); color: #fff; letter-spacing: 8px; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body data-theme="dark">
+
+    <a href="OEFindex.html" class="home-btn">Home</a>
+    <button class="theme-switch" onclick="toggleTheme()">APPEARANCE</button>
+    <div id="custom-cursor"></div>
+
+    <div class="form-container" id="reg-form">
+        <h2>Volunteer Application</h2>
+        <div class="glowing-line"></div>
+        
+        <form id="volunteerForm" onsubmit="handleForm(event)">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" name="fullName" required>
+                </div>
+                <div class="form-group">
+                    <label>Date of Birth</label>
+                    <input type="date" name="dob" required>
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" name="phone" required>
+                </div>
+                <div class="form-group">
+                    <label>Nationality</label>
+                    <input type="text" name="nationality" required>
+                </div>
+                <div class="form-group">
+                    <label>Primary Language</label>
+                    <input type="text" name="language" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Area of Interest</label>
+                    <select name="interest" required>
+                        <option value="">Select Field</option>
+                        <option value="Field Work">Field Work & Logistics</option>
+                        <option value="Media">Social Media & PR</option>
+                        <option value="Education">Educational Support</option>
+                        <option value="Healthcare">Healthcare Assistance</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Mode of Transportation</label>
+                    <select name="transport" required>
+                        <option value="Public">Public Transport</option>
+                        <option value="Car">Private Vehicle</option>
+                        <option value="Bike">Motorcycle</option>
+                    </select>
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Motivation</label>
+                    <textarea name="motivation" rows="3" required placeholder="Why do you wish to join the Foundation?"></textarea>
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Passport Photo (Max 12MB)</label>
+                    <div class="file-upload" onclick="document.getElementById('photo').click()">
+                        <input type="file" id="photo" name="passport" accept="image/*" style="display:none" onchange="checkFileSize(this)">
+                        <span id="file-label">Click to Upload Photo</span>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">Submit Application</button>
+        </form>
+    </div>
+
+    <div class="success-container hidden" id="success-page">
+        <h2>Received</h2>
+        <div class="glowing-line"></div>
+        <p style="font-weight: 300; line-height: 2; letter-spacing: 1px; font-size: 0.9rem; margin-bottom: 40px;">
+            Your credentials have been safely recorded in the archive.<br>
+            The Onakpa Emmanuel Foundation will review your application soon.
+        </p>
+        <button class="submit-btn" onclick="location.reload()">Back to Form</button>
+    </div>
+
+    <script>
+        const cursor = document.getElementById('custom-cursor');
+
+        // 1. Custom Cursor Movement
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+        // 2. Interactive Element Hover Logic (Updated to include .home-btn)
+        const interactiveElements = 'button, input, select, textarea, .file-upload, .home-btn, a';
+        document.querySelectorAll(interactiveElements).forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('ring'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('ring'));
+        });
+
+        // 3. Form Handling
+        async function handleForm(e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submitBtn');
+            const originalText = submitBtn.innerText;
+            
+            submitBtn.innerText = "Processing Application...";
+            submitBtn.disabled = true;
+
+            const formData = new FormData(e.target);
+
+            try {
+                const response = await fetch('http://localhost:3000/submit-volunteer', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    document.getElementById('reg-form').classList.add('hidden');
+                    document.getElementById('success-page').classList.remove('hidden');
+                    window.scrollTo(0, 0);
+                } else {
+                    const errorData = await response.json();
+                    alert("Error: " + (errorData.message || "Upload failed."));
+                    submitBtn.innerText = originalText;
+                    submitBtn.disabled = false;
+                }
+            } catch (err) {
+                alert("Server Error. Please check if your Node.js server is running.");
+                submitBtn.innerText = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+
+        // 4. File Validation
+        function checkFileSize(input) {
+            const file = input.files[0];
+            if (file && file.size > 12 * 1024 * 1024) {
+                alert("File too large. Maximum size is 12MB.");
+                input.value = "";
+                document.getElementById('file-label').innerText = "Click to Upload Photo";
+            } else if (file) {
+                document.getElementById('file-label').innerText = file.name;
+            }
+        }
+
+        // 5. Theme Toggle
+        function toggleTheme() {
+            const current = document.body.getAttribute('data-theme');
+            document.body.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+        }
+    </script>
+</body>
+</html>
