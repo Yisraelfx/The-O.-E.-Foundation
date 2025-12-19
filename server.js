@@ -106,7 +106,7 @@ const approveLink = `${protocol}://${host}/approve?email=${encodeURIComponent(da
                     </div>
 
                     <div style="margin-top: 60px; font-size: 9px; letter-spacing: 3px; opacity: 0.4; text-transform: uppercase;">
-                        Preserving the Digital Archive — Chronicle 2025
+                        Onakpa Emmanuel Foundation • ...we split the seas, so you can walk right through it
                     </div>
                 </div>
             </div>
@@ -135,19 +135,46 @@ fs.unlink(file.path, (err) => {
 app.get('/approve', (req, res) => {
     const { email, token } = req.query;
 
+    // 1. Validate the token
     if (token !== SECRET_TOKEN) {
-        return res.status(403).send('<h1 style="text-align:center; font-family:sans-serif; margin-top:50px;">Invalid Security Token</h1>');
+        return res.status(403).send("Invalid approval token.");
     }
 
-    res.send(`
-        <body style="background: #1B120F; color: #D4AF37; font-family: Montserrat, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; text-align: center; margin: 0;">
-            <div style="border: 1px solid #D4AF37; padding: 50px; box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);">
-                <h1 style="letter-spacing: 5px; text-transform: uppercase;">Volunteer Approved</h1>
-                <p style="color: #F5F5DC; opacity: 0.8;">${email} has been added to the official foundation records.</p>
-                <div style="height: 1px; width: 40px; background: #D4AF37; margin: 20px auto;"></div>
+    // 2. Prepare the Approval Email for the Applicant
+    const approvalMailOptions = {
+        from: `"Onakpa Emmanuel Foundation" <${process.env.GMAIL_USER}>`,
+        to: email, // The applicant's email
+        subject: "Congratulations! Your Application has been Approved",
+        html: `
+            <div style="font-family: 'Montserrat', sans-serif; color: #1B120F;">
+                <h2 style="color: #D4AF37;">Welcome to the Foundation</h2>
+                <p>Dear Volunteer,</p>
+                <p>We are pleased to inform you that your application to the <strong>Onakpa Emmanuel Foundation</strong> has been reviewed and <strong>APPROVED</strong>.</p>
+                <p>Your profile has been added to our Global Archive, and a coordinator will reach out to you shortly regarding next steps.</p>
+                <br>
+                <p>Best Regards,</p>
+                <p><strong>The O.E.F Administration Team</strong></p>
+                <hr style="border: 0; border-top: 1px solid #D4AF37;">
+                <small>Onakpa Emmanuel Foundation• ...we split the seas, so you can walk right through it</small>
             </div>
-        </body>
-    `);
+        `
+    };
+
+    // 3. Send the email
+    transporter.sendMail(approvalMailOptions, (error, info) => {
+        if (error) {
+            console.error("Error sending approval email:", error);
+            return res.status(500).send("Admin approved, but failed to notify the applicant.");
+        }
+        
+        console.log(`Approval notification sent to: ${email}`);
+        res.send(`
+            <h1 style="color: gold; background: #1B120F; padding: 20px; text-align: center;">
+                Volunteer Approved Successfully
+            </h1>
+            <p style="text-align: center;">A confirmation email has been sent to ${email}.</p>
+        `);
+    });
 });
 
 app.listen(PORT, () => {
