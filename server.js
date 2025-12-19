@@ -135,19 +135,20 @@ fs.unlink(file.path, (err) => {
 app.get('/approve', (req, res) => {
     const { email, token } = req.query;
 
-    // 1. Validate the token
     if (token !== SECRET_TOKEN) {
-        return res.status(403).send("Invalid approval token.");
+        return res.status(403).send("Invalid token.");
     }
 
-    // 2. Prepare the Approval Email for the Applicant
-    const approvalMailOptions = {
-        from: `"Onakpa Emmanuel Foundation" <${process.env.GMAIL_USER}>`,
-        to: email, // The applicant's email
+    const volunteerID = `OEF-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    // EMAIL 1: The Approval Notification
+    const mail1 = {
+        from: `"O.E.F Administration" <${process.env.GMAIL_USER}>`,
+        to: email,
         subject: "Congratulations! Your Application has been Approved",
         html: `
             <div style="font-family: 'Montserrat', sans-serif; color: #1B120F;">
-                <h2 style="color: #D4AF37;">Welcome to the Foundation</h2>
+                <h2 style="color: #D4AF37;">Welcome to theOnakpa Emmanuel Foundation</h2>
                 <p>Dear Volunteer,</p>
                 <p>We are pleased to inform you that your application to the <strong>Onakpa Emmanuel Foundation</strong> has been reviewed and <strong>APPROVED</strong>.</p>
                 <p>Your profile has been added to our Global Archive, and a coordinator will reach out to you shortly regarding next steps.</p>
@@ -155,28 +156,62 @@ app.get('/approve', (req, res) => {
                 <p>Best Regards,</p>
                 <p><strong>The O.E.F Administration Team</strong></p>
                 <hr style="border: 0; border-top: 1px solid #D4AF37;">
-                <small>Onakpa Emmanuel Foundation• ...we split the seas, so you can walk right through it</small>
+                <small>Onakpa Emmanuel Foundation • ...we split the seas, so you can walk right through it</small>
             </div>
         `
     };
 
-    // 3. Send the email
-    transporter.sendMail(approvalMailOptions, (error, info) => {
-        if (error) {
-            console.error("Error sending approval email:", error);
-            return res.status(500).send("Admin approved, but failed to notify the applicant.");
-        }
-        
-        console.log(`Approval notification sent to: ${email}`);
-        res.send(`
-            <h1 style="color: gold; background: #1B120F; padding: 20px; text-align: center;">
-                Volunteer Approved Successfully
-            </h1>
-            <p style="text-align: center;">A confirmation email has been sent to ${email}.</p>
-        `);
+    // EMAIL 2: The ID Card with Download Button
+    const mail2 = {
+        from: `"O.E.F Archive" <${process.env.GMAIL_USER}>`,
+        to: email,
+        subject: "OFFICIAL DIGITAL ID: Onakpa Emmanuel Foundation",
+        html: `
+            <div style="font-family: Arial, sans-serif; text-align: center; padding: 20px;">
+                <div id="id-card" style="width: 350px; margin: auto; background: #1B120F; border: 2px solid #D4AF37; padding: 20px; color: #F5F5DC; border-radius: 10px;">
+                    <h2 style="color: #D4AF37; margin: 0;">O.E.F</h2>
+                    <p style="font-size: 10px; letter-spacing: 3px;">GLOBAL ARCHIVE</p>
+                    <hr border="1" color="#D4AF37">
+                    <h3 style="margin: 20px 0 5px 0;">OFFICIAL VOLUNTEER</h3>
+                    <p style="font-size: 14px; color: #D4AF37;">${email}</p>
+                    <p style="font-size: 12px;">ID: ${volunteerID}</p>
+                    <p style="font-size: 10px; margin-top: 20px; opacity: 0.7;">Transcending Borders Through Service</p>
+                </div>
+                <br>
+                <a href="https://onakpa-foundation.onrender.com/download-id?email=${encodeURIComponent(email)}&id=${volunteerID}" 
+                   style="background: #D4AF37; color: #1B120F; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                   DOWNLOAD ID CARD (PDF)
+                </a>
+            </div>
+        `
+    };
+
+    // Chain the emails
+    transporter.sendMail(mail1, () => {
+        transporter.sendMail(mail2, (err) => {
+            if (err) return res.status(500).send("Error sending ID.");
+            res.send(`<h1 style="color:gold; text-align:center;">Approval & ID Sent to ${email}</h1>`);
+        });
     });
 });
-
 app.listen(PORT, () => {
     console.log(`✅ Server Active: http://localhost:${PORT}`);
+});
+
+app.get('/download-id', (req, res) => {
+    const { email, id } = req.query;
+    res.send(`
+        <html>
+            <body onload="window.print()">
+                <div style="width: 400px; height: 250px; background: #1B120F; color: #F5F5DC; border: 5px solid #D4AF37; padding: 20px; margin: 50px auto; text-align: center; font-family: sans-serif;">
+                    <h1 style="color: #D4AF37;">O.E.F</h1>
+                    <p>OFFICIAL VOLUNTEER ID</p>
+                    <h2 style="margin: 30px 0;">${email}</h2>
+                    <p style="color: #D4AF37;">ID NO: ${id}</p>
+                    <p style="font-size: 10px; margin-top: 40px;">Onakpa Emmanuel Foundation Archive © 2025</p>
+                </div>
+                <p style="text-align:center; font-family:sans-serif;">If the print dialog didn't open, press <b>Ctrl + P</b> to save as PDF.</p>
+            </body>
+        </html>
+    `);
 });
