@@ -195,12 +195,8 @@ app.get('/approve', async (req, res) => {
 // --- 5. PRINTABLE ID ROUTE ---
 const logoURL = 'https://onakpaemmanuelfoundation.org/assets/logo.png';
     // Chain the emails
-    transporter.sendMail(mail1, () => {
-        transporter.sendMail(mail2, (err) => {
-            if (err) return res.status(500).send("Error sending ID.");
-            res.send(`<h1 style="color:gold; text-align:center;">Approval & ID Sent to ${email}</h1>`);
-        });
-    });
+        await resend.emails.send(mail1);
+        await resend.emails.send(mail2);
 
 app.get('/download-id', (req, res) => {
     const { email, id } = req.query;
