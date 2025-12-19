@@ -58,19 +58,16 @@ app.post('/submit-volunteer', upload.single('passport'), (req, res) => {
     const data = req.body;
     const file = req.file;
 
-    // Basic validation
     if (!file) {
         return res.status(400).json({ status: 'error', message: 'No passport photo uploaded.' });
     }
 
-    // Generate the Secure Approval Link
-const protocol = req.protocol;
-const host = req.get('host');
-const approveLink = `${protocol}://${host}/approve?email=${encodeURIComponent(data.email)}&token=${SECRET_TOKEN}`;
-
-    // Professional Gold-Themed Email Template
+    const protocol = req.protocol;
+    const host = req.get('host');
+    const approveLink = `${protocol}://${host}/approve?email=${encodeURIComponent(data.email)}&token=${SECRET_TOKEN}`;
     const mailOptions = {
-        from: 'onakpaemmanuelfoundation@gmail.com',
+        // FIXED: Use the env variable here to match the auth user
+        from: `"O.E.F Administration" <${process.env.GMAIL_USER}>`, 
         to: 'blackondoboy@gmail.com',
         subject: `📜 New Volunteer Credentials: ${data.fullName}`,
         html: `
@@ -90,7 +87,7 @@ const approveLink = `${protocol}://${host}/approve?email=${encodeURIComponent(da
                             ['NATIONALITY', data.nationality],
                             ['LANGUAGE', data.language],
                             ['INTEREST', data.interest],
-                            ['TRANSPORT', data.transport],
+                            ['MOTIVATION', data.motivation],
                             ['CRIMINAL RECORD', data.criminal_record]
                         ].map(([label, value]) => `
                             <tr>
@@ -116,16 +113,18 @@ const approveLink = `${protocol}://${host}/approve?email=${encodeURIComponent(da
                 </div>
             </div>
         `,
+
         attachments: [{ path: file.path }]
     };
 
-    console.log("Attempting to send email to:", process.env.GMAIL_USER);
+    console.log("Attempting to send email via:", process.env.GMAIL_USER);
 
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-            console.error('Email error:', error);
+            console.error('Email error details:', error); // This gives more info in Render logs
             return res.status(500).json({ status: 'error', message: 'Email failed to send.' });
         }
+        // ... rest of your code ...
         console.log('Application sent for:', data.fullName);
 
         // Clean up: Delete the file from the /uploads folder after sending the email
@@ -204,9 +203,6 @@ app.get('/approve', (req, res) => {
         });
     });
 });
-app.listen(PORT, () => {
-    console.log(`✅ Server Active: http://localhost:${PORT}`);
-});
 
 app.get('/download-id', (req, res) => {
     const { email, id } = req.query;
@@ -225,4 +221,8 @@ app.get('/download-id', (req, res) => {
             </body>
         </html>
     `);
+});
+
+app.listen(PORT, () => {
+    console.log(`✅ Server Active: http://localhost:${PORT}`);
 });
