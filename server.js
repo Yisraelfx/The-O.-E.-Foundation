@@ -41,10 +41,15 @@ const upload = multer({
 
 // --- 2. NODEMAILER CONFIGURATION ---
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false, // Must be false for port 587
     auth: {
         user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASS // Your 16-digit Google App Password
+        pass: process.env.GMAIL_PASS
+    },
+    tls: {
+        rejectUnauthorized: false // This helps bypass cloud security blocks
     }
 });
 
@@ -113,6 +118,8 @@ const approveLink = `${protocol}://${host}/approve?email=${encodeURIComponent(da
         `,
         attachments: [{ path: file.path }]
     };
+
+    console.log("Attempting to send email to:", process.env.GMAIL_USER);
 
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
