@@ -140,7 +140,7 @@ app.get('/approve', (req, res) => {
     }
 
     const volunteerID = `OEF-${Math.floor(1000 + Math.random() * 9000)}`;
-    const logoURL = https://github.com/Yisraelfx/The-O.-E.-Foundation/blob/38cf27ea787134c8df2bc1f813286910f1520922/assets/logo.jpg;
+    const logoURL = 'https://github.com/Yisraelfx/The-O.-E.-Foundation/blob/38cf27ea787134c8df2bc1f813286910f1520922/assets/logo.jpg';
 
     // EMAIL 1: The Approval Notification
     const mail1 = {
