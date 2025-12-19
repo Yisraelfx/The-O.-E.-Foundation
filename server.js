@@ -43,8 +43,8 @@ const upload = multer({
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'onakpaemmanuelfoundation@gmail.com',
-        pass: 'lmtgcbdqeugvxvbw' // Your 16-digit Google App Password
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASS // Your 16-digit Google App Password
     }
 });
 
