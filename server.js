@@ -1,9 +1,11 @@
-const express = require('express');
-const multer = require('multer');
-const nodemailer = require('nodemailer');
-const cors = require('cors');
-const path = require('path');
-const fs = require('fs');
+import cors from 'cors';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+// These two lines are needed to make __dirname work in ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -11,7 +13,8 @@ const PORT = process.env.PORT || 3000;
 /** * SECURITY CONFIGURATION
  * Change 'CHRONICLE_2025_SECURE' to your own private password.
  */
-const SECRET_TOKEN = "CHRONICLE_2025_SECURE"; 
+const SECRET_TOKEN = "CHRONICLE_2025_SECURE";
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // --- MIDDLEWARE ---
 app.use(cors());
@@ -41,9 +44,6 @@ const upload = multer({
 
 // --- 2. RESEND CONFIGURATION ---
 const { Resend } = require('resend');
-
-// Initialize Resend with your API Key
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 // --- 3. SUBMISSION ROUTE ---
 app.post('/submit-volunteer', upload.single('passport'), async (req, res) => {
