@@ -140,6 +140,7 @@ app.get('/approve', (req, res) => {
     }
 
     const volunteerID = `OEF-${Math.floor(1000 + Math.random() * 9000)}`;
+    const logoURL = ;
 
     // EMAIL 1: The Approval Notification
     const mail1 = {
@@ -148,6 +149,7 @@ app.get('/approve', (req, res) => {
         subject: "Congratulations! Your Application has been Approved",
         html: `
             <div style="font-family: 'Montserrat', sans-serif; color: #1B120F;">
+            <img src="${logoURL}" alt="O.E.F Logo" style="width: 80px; margin-bottom: 20px;">
                 <h2 style="color: #D4AF37;">Welcome to theOnakpa Emmanuel Foundation</h2>
                 <p>Dear Volunteer,</p>
                 <p>We are pleased to inform you that your application to the <strong>Onakpa Emmanuel Foundation</strong> has been reviewed and <strong>APPROVED</strong>.</p>
@@ -168,6 +170,7 @@ app.get('/approve', (req, res) => {
         subject: "OFFICIAL DIGITAL ID: Onakpa Emmanuel Foundation",
         html: `
             <div style="font-family: Arial, sans-serif; text-align: center; padding: 20px;">
+            <img src="${logoURL}" alt="O.E.F Logo" style="width: 80px; margin-bottom: 20px;">
                 <div id="id-card" style="width: 350px; margin: auto; background: #1B120F; border: 2px solid #D4AF37; padding: 20px; color: #F5F5DC; border-radius: 10px;">
                     <h2 style="color: #D4AF37; margin: 0;">O.E.F</h2>
                     <p style="font-size: 10px; letter-spacing: 3px;">GLOBAL ARCHIVE</p>
@@ -204,6 +207,7 @@ app.get('/download-id', (req, res) => {
         <html>
             <body onload="window.print()">
                 <div style="width: 400px; height: 250px; background: #1B120F; color: #F5F5DC; border: 5px solid #D4AF37; padding: 20px; margin: 50px auto; text-align: center; font-family: sans-serif;">
+                <img src="${logoURL}" alt="O.E.F Logo" style="width: 80px; margin-bottom: 20px;">
                     <h1 style="color: #D4AF37;">O.E.F</h1>
                     <p>OFFICIAL VOLUNTEER ID</p>
                     <h2 style="margin: 30px 0;">${email}</h2>
