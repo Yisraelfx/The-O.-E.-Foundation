@@ -94,21 +94,24 @@ app.get('/approve', async (req, res) => {
     const volunteerID = `OEF-${Math.floor(1000 + Math.random() * 9000)}`;
 
     try {
+        console.log(`Processing approval for: ${email}`);
+        
         // Send Approval Email
         await resend.emails.send({
             from: 'O.E.F Administration <onboarding@resend.dev>',
-            to: email,
+            to: 'issyrhym3z@gmail.com',
             subject: "Congratulations! Your Application has been Approved",
             html: `<div style="font-family: sans-serif; color: #1B120F;">
                     <h2 style="color: #D4AF37;">Approved</h2>
-                    <p>Welcome to the Foundation.</p>
+                    <p>Welcome to the Onakpa Emmanuel Foundation.</p>
+                    <p>Volunteer ${email} has been approved. ID: ${volunteerID}</p>
                    </div>`
         });
 
         // Send ID Email
         await resend.emails.send({
             from: 'O.E.F Archive <onboarding@resend.dev>',
-            to: email,
+            to: 'issyrhym3z@gmail.com',
             subject: "OFFICIAL DIGITAL ID",
             html: `<div style="text-align: center;">
                     <h3>ID: ${volunteerID}</h3>
@@ -116,7 +119,7 @@ app.get('/approve', async (req, res) => {
                    </div>`
         });
 
-        res.send(`<h1 style="color:gold; text-align:center;">Approval Sent to ${email}</h1>`);
+        res.send(`<h1 style="color:gold; text-align:center;">SUCCESS: Approval & ID Sent!</h1>`);
     } catch (error) {
         console.error('Approval Error:', error);
         res.status(500).send("Error sending emails.");
