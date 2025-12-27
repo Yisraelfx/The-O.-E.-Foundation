@@ -64,6 +64,35 @@ app.post('/submit-volunteer', upload.single('passport'), async (req, res) => {
                 <div style="max-width: 600px; margin: 0 auto; border: 1px solid #D4AF37; padding: 50px; background-color: #2D1B15;">
                     <h1 style="color: #D4AF37;">Onakpa Emmanuel Foundation</h1>
                     <p>New registration received for <strong>${data.fullName}</strong>.</p>
+                    <div style="height: 2px; width: 50px; background-color: #D4AF37; margin: 10px auto 30px;"></div>
+
+                    <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                        ${[
+                            ['FULL NAME', data.fullName],
+                            ['DATE OF BIRTH', data.dob],
+                            ['EMAIL', data.email],
+                            ['PHONE', data.phone],
+                            ['NATIONALITY', data.nationality],
+                            ['PRIMARY LANGUAGE', data.language],
+                            ['AREA OF INTEREST', data.interest],
+                            ['MOTIVATION', data.motivation],
+                            ['TRANSPORTATION', data.transport],
+                            ['CRIMINAL RECORD', data.criminal_record]
+                        ].map(([label, value]) => `
+                            <tr>
+                                <td style="padding: 10px; border-bottom: 1px solid rgba(212, 175, 55, 0.2); color: #D4AF37; font-weight: bold; width: 40%; text-transform: uppercase; font-size: 11px;">${label}</td>
+                                <td style="padding: 10px; border-bottom: 1px solid rgba(212, 175, 55, 0.2); color: #F5F5DC;">${value || 'N/A'}</td>
+                            </tr>
+                        `).join('')}
+                    </table>
+
+                    <div style="margin-top: 20px;">
+                        <p style="color: #D4AF37; font-weight: bold; font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">MOTIVATION:</p>
+                        <p style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 4px; font-style: italic; line-height: 1.6;">"${data.motivation}"</p>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(212, 175, 55, 0.2);">
+                        <p style="color: #D4AF37; font-size: 12px; margin-bottom: 15px;">Review the credentials and click below to finalize.</p>
                     <a href="${approveLink}" style="background-color: #D4AF37; color: #1B120F; padding: 15px 25px; text-decoration: none; font-weight: bold; display: inline-block; margin-top: 20px;">
                        Approve Volunteer
                     </a>
