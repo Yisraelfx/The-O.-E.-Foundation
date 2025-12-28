@@ -144,7 +144,7 @@ app.get('/approve', async (req, res) => {
             subject: "OFFICIAL DIGITAL ID",
             html: `<div style="text-align: center;">
                     <h3>ID: ${volunteerID}</h3>
-                    <a href="https://onakpa-foundation.onrender.com/download-id?email=${encodeURIComponent(email)}&id=${volunteerID}">Download PDF</a>
+                    <a href="https://onakpa-foundation.onrender.com/download-id?email=${encodeURIComponent(email)}&id=${volunteerID}&name=${encodeURIComponent(data.fullName)}&interest=${encodeURIComponent(data.interest)}">Download PDF</a>
                    </div>`
         });
 
@@ -157,17 +157,110 @@ app.get('/approve', async (req, res) => {
 
 // --- 4. PRINTABLE ID ROUTE ---
 app.get('/download-id', (req, res) => {
-    const { email, id } = req.query;
+    const { email, id, name, interest } = req.query;
+    
+    // This generates a QR code that links back to your foundation website for verification
+    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=VERIFIED-OEF-${id}&color=D4AF37&bgcolor=1B120F`;
+
     res.send(`
         <html>
+            <head>
+                <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&family=Pinyon+Script&display=swap" rel="stylesheet">
+                <style>
+                    body { background: #F5F5DC; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: 'Montserrat', sans-serif; }
+                    
+                    .id-card {
+                        width: 450px;
+                        height: 280px;
+                        background: #1B120F;
+                        color: #F5F5DC;
+                        border: 3px solid #D4AF37;
+                        padding: 0;
+                        display: flex;
+                        overflow: hidden;
+                        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+                    }
+
+                    /* Left Side: Info */
+                    .card-main {
+                        flex: 2;
+                        padding: 25px;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        text-align: left;
+                    }
+
+                    /* Right Side: Security Features */
+                    .card-side {
+                        flex: 1;
+                        background: rgba(212, 175, 55, 0.05);
+                        border-left: 1px solid rgba(212, 175, 55, 0.3);
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: space-around;
+                        padding: 15px 0;
+                    }
+
+                    .foundation-name { color: #D4AF37; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; margin: 0 0 10px 0; }
+                    
+                    .volunteer-name { font-size: 18px; font-weight: 700; color: #D4AF37; text-transform: uppercase; margin-bottom: 2px; }
+                    .volunteer-email { font-size: 10px; opacity: 0.7; margin-bottom: 15px; }
+
+                    .info-row { margin-bottom: 10px; }
+                    .label { color: #D4AF37; font-size: 8px; letter-spacing: 1px; text-transform: uppercase; }
+                    .value { font-size: 11px; font-weight: bold; }
+
+                    .qr-code { width: 70px; height: 70px; border: 1px solid rgba(212, 175, 55, 0.5); padding: 5px; background: #1B120F; }
+                    
+                    .signature-wrap { text-align: center; }
+                    .signature { font-family: 'Pinyon Script', cursive; color: #D4AF37; font-size: 22px; margin: 0; line-height: 1; }
+                    .sig-label { font-size: 7px; letter-spacing: 1px; opacity: 0.5; border-top: 0.5px solid #D4AF37; padding-top: 3px; }
+
+                    .watermark { position: absolute; bottom: 10px; left: 25px; font-size: 7px; opacity: 0.3; letter-spacing: 1px; }
+
+                    @media print {
+                        body { background: white; }
+                        .id-card { -webkit-print-color-adjust: exact; margin: 0 auto; }
+                    }
+                </style>
+            </head>
             <body onload="window.print()">
-                <div style="width: 400px; height: 250px; background: #1B120F; color: #F5F5DC; border: 5px solid #D4AF37; padding: 20px; margin: 50px auto; text-align: center; font-family: sans-serif;">
-                    <h1 style="color: #D4AF37;">O.E.F</h1>
-                    <h2>${email}</h2>
-                    <p>ID NO: ${id}</p>
+                <div class="id-card">
+                    <div class="card-main">
+                        <h1 class="foundation-name">O. E. Foundation</h1>
+                        
+                        <div class="volunteer-name">${name || 'Official Volunteer'}</div>
+                        <div class="volunteer-email">${email}</div>
+
+                        <div class="info-row">
+                            <div class="label">Identification Number</div>
+                            <div class="value">#${id}</div>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="label">Field of Operation</div>
+                            <div class="value">${interest || 'Global Volunteer'}</div>
+                        </div>
+
+                        <div class="watermark">ARCHIVE SECURED • 2025</div>
+                    </div>
+
+                    <div class="card-side">
+                        <img src="${qrCodeUrl}" class="qr-code">
+                        
+                        <div class="signature-wrap">
+                            <p class="signature">E. Onakpa</p>
+                            <p class="sig-label">AUTHORIZED SIGNATORY</p>
+                        </div>
+                        
+                        <img src="${logoURL}" style="width: 30px; opacity: 0.6;">
+                    </div>
                 </div>
             </body>
-        </html>`);
+        </html>
+    `);
 });
 
 app.listen(PORT, () => {
